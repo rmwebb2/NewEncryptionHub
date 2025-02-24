@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="text-center">
+    <h1>Welcome to CipherGuard</h1>
+    <p>Encrypt &amp; Decrypt Your Data Securely</p>
+    <a class="btn btn-primary" href="{{ url_for('encrypt') }}">Encrypt</a>
+    <a class="btn btn-secondary" href="{{ url_for('decrypt') }}">Decrypt</a>
+  </div>
+{% endblock %}

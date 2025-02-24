@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Encrypt Data</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label for="plaintext" class="form-label">Text to Encrypt</label>
+      <textarea class="form-control" id="plaintext" name="plaintext" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="method" class="form-label">Select Encryption Method</label>
+      <select class="form-select" id="method" name="method" required>
+        <option value="AES-256">AES-256</option>
+        <option value="RSA-2048">RSA-2048</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Encrypt</button>
+  </form>
+{% endblock %}

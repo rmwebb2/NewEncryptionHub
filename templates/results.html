@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>{{ operation }} Results</h2>
+  <div class="card my-3">
+    <div class="card-body">
+      <pre>{{ result }}</pre>
+    </div>
+  </div>
+  <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+{% endblock %}

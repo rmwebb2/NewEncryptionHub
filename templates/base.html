@@ -1,0 +1,69 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CipherGuard</title>
+  <!-- Example: Bootstrap CSS via CDN -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('home') }}">CipherGuard</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('encrypt') }}">Encrypt</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('decrypt') }}">Decrypt</a>
+          </li>
+          {% if current_user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Bootstrap JS via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

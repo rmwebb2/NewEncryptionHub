@@ -3,15 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
+# creating Flask app and configuring it w/ necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key_here'
+app.config['SECRET_KEY'] = 'your_secret_key_here'  ## need to change this in production/sprint 2
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # redirects if route requires login
-
-
 
 # creating a User model for sqlite and sqlalchemy
 class User(db.Model, UserMixin):
@@ -96,5 +95,5 @@ def decrypt():
 # run and creates tables
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Ensure the tables exist
+        db.create_all()  # ensure the tables exist
     app.run(debug=True)

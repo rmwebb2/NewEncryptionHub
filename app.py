@@ -187,6 +187,31 @@ def download_decrypted_file(file_id):
                  download_name=file_record.filename,
                  as_attachment=True)
 
+# route to delete a file
+@app.route('/delete_file/<int:file_id>', methods=['POST'])
+@login_required
+def delete_file(file_id):
+    file_record = File.query.get_or_404(file_id)
+    # Ensure the current user owns the file
+    if file_record.user_id != current_user.id:
+        flash("You do not have permission to delete this file.", "danger")
+        return redirect(url_for('my_files'))
+    
+    # Delete the file from disk
+    try:
+        os.remove(file_record.filepath)
+    except Exception as e:
+        flash(f"Error deleting file from disk: {str(e)}", "danger")
+        return redirect(url_for('my_files'))
+    
+    # Remove the file record from the database
+    db.session.delete(file_record)
+    db.session.commit()
+    
+    flash("File deleted successfully!", "success")
+    return redirect(url_for('my_files'))
+
+
 # logout route
 @app.route('/logout')
 @login_required

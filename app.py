@@ -27,7 +27,7 @@ class User(db.Model, UserMixin):
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
-# function to ensure the uploaded file is of the correct type
+# function to ensure the uploaded file is of the correct type (listed above^)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -101,25 +101,25 @@ def upload():
             os.makedirs(user_folder, exist_ok=True)
             filepath = os.path.join(user_folder, filename)
             
-            # Read the file's contents into memory
+            # read the file's contents into memory
             file_data = file.read()
-            # Generate a random 256-bit AES key
+            # generate a random 256-bit AES key
             key = os.urandom(32)
-            # Create an AES cipher in CBC mode (this generates a random IV)
+            # create an AES cipher in CBC mode (this generates a random IV)
             cipher = AES.new(key, AES.MODE_CBC)
-            # Encrypt the file data (pad it to the block size)
+            # encrypt the file data (pad it to the block size)
             encrypted_data = cipher.encrypt(pad(file_data, AES.block_size))
-            # Prepend the IV to the encrypted data so we can use it during decryption
+            # prepend the IV to the encrypted data so we can use it during decryption
             stored_data = cipher.iv + encrypted_data
             
-            # Save the encrypted data to disk
+            # save the encrypted data to disk
             with open(filepath, 'wb') as f:
                 f.write(stored_data)
             
-            # Convert the encryption key to a Base64 string for storage
+            # convert the encryption key to a Base64 string for storage
             key_b64 = base64.b64encode(key).decode('utf-8')
             
-            # Save file info in the database (including the encryption key)
+            # save file info in the database (including encryption key)
             new_file = File(filename=filename, filepath=filepath, user_id=current_user.id, encryption_key=key_b64)
             db.session.add(new_file)
             db.session.commit()
@@ -159,30 +159,30 @@ def download_file(file_id):
 @login_required
 def download_decrypted_file(file_id):
     file_record = File.query.get_or_404(file_id)
-    # Ensure the current user is authorized to download this file
+    # ensure the current user is authorized to download this file
     if file_record.user_id != current_user.id:
         flash("You do not have permission to access this file.", "danger")
         return redirect(url_for('dashboard'))
     
-    # Read the encrypted file data from disk
+    # read the encrypted file data from disk
     with open(file_record.filepath, 'rb') as f:
         encrypted_data = f.read()
     
-    # Retrieve the stored encryption key and decode it
+    # retrieve the stored encryption key and decode it
     key = base64.b64decode(file_record.encryption_key)
-    # Extract the IV (first block) and the ciphertext
+    # extract the IV (first block) and the ciphertext
     iv = encrypted_data[:AES.block_size]
     ciphertext = encrypted_data[AES.block_size:]
     
     try:
-        # Create cipher with the stored key and extracted IV, then decrypt
+        # create cipher with the stored key and extracted IV, then decrypt
         cipher = AES.new(key, AES.MODE_CBC, iv)
         decrypted_data = unpad(cipher.decrypt(ciphertext), AES.block_size)
     except Exception as e:
         flash(f"Decryption failed: {str(e)}", "danger")
         return redirect(url_for('my_files'))
     
-    # Use BytesIO to send the decrypted file as an attachment
+    # use BytesIO to send the decrypted file as an attachment
     return send_file(BytesIO(decrypted_data),
                  download_name=file_record.filename,
                  as_attachment=True)
@@ -191,34 +191,34 @@ def download_decrypted_file(file_id):
 @login_required
 def view_decrypted_file(file_id):
     file_record = File.query.get_or_404(file_id)
-    # Ensure the file belongs to the current user
+    # ensure the file belongs to the current user
     if file_record.user_id != current_user.id:
         flash("You do not have permission to view this file.", "danger")
         return redirect(url_for('my_files'))
     
-    # Read the encrypted file data from disk
+    # read the encrypted file data from disk
     with open(file_record.filepath, 'rb') as f:
         encrypted_data = f.read()
     
-    # Retrieve the stored encryption key and decode it
+    # retrieve the stored encryption key and decode it
     key = base64.b64decode(file_record.encryption_key)
-    # Extract the IV (first block) and the ciphertext
+    # extract the IV (first block) and the ciphertext
     iv = encrypted_data[:AES.block_size]
     ciphertext = encrypted_data[AES.block_size:]
     
     try:
-        # Decrypt the data
+        # decrypt the data
         cipher = AES.new(key, AES.MODE_CBC, iv)
         decrypted_data = unpad(cipher.decrypt(ciphertext), AES.block_size)
     except Exception as e:
         flash(f"Decryption failed: {str(e)}", "danger")
         return redirect(url_for('my_files'))
     
-    # Convert bytes to a string (assuming the file is text-based)
+    # convert bytes to a string (assuming the file is text-based)
     try:
         content = decrypted_data.decode('utf-8')
     except UnicodeDecodeError:
-        # If it's not a text file, let the user know
+        # if it's not a text file, let the user know
         flash("This file doesn't appear to be a text file.", "warning")
         return redirect(url_for('my_files'))
     
@@ -229,25 +229,24 @@ def view_decrypted_file(file_id):
 @login_required
 def delete_file(file_id):
     file_record = File.query.get_or_404(file_id)
-    # Ensure the current user owns the file
+    # ensure the current user owns the file
     if file_record.user_id != current_user.id:
         flash("You do not have permission to delete this file.", "danger")
         return redirect(url_for('my_files'))
     
-    # Delete the file from disk
+    # delete the file from disk
     try:
         os.remove(file_record.filepath)
     except Exception as e:
         flash(f"Error deleting file from disk: {str(e)}", "danger")
         return redirect(url_for('my_files'))
     
-    # Remove the file record from the database
+    # remove the file record from the database
     db.session.delete(file_record)
     db.session.commit()
     
     flash("File deleted successfully!", "success")
     return redirect(url_for('my_files'))
-
 
 # logout route
 @app.route('/logout')

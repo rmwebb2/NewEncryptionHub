@@ -11,7 +11,9 @@
             <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-sm btn-outline-primary">Download Encrypted</a>
             <!-- Link to download decrypted file -->
             <a href="{{ url_for('download_decrypted_file', file_id=file.id) }}" class="btn btn-sm btn-outline-success">Download Decrypted</a>
-            <!-- Delete file form -->
+            <!-- New "View Decrypted" button for text files -->
+            <a href="{{ url_for('view_decrypted_file', file_id=file.id) }}" class="btn btn-sm btn-outline-info">View Decrypted</a>
+            <!-- Existing Delete button/form -->
             <form action="{{ url_for('delete_file', file_id=file.id) }}" method="POST" style="display:inline-block;">
               <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
             </form>

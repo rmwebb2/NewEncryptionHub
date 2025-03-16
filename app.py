@@ -187,6 +187,43 @@ def download_decrypted_file(file_id):
                  download_name=file_record.filename,
                  as_attachment=True)
 
+@app.route('/view_decrypted/<int:file_id>')
+@login_required
+def view_decrypted_file(file_id):
+    file_record = File.query.get_or_404(file_id)
+    # Ensure the file belongs to the current user
+    if file_record.user_id != current_user.id:
+        flash("You do not have permission to view this file.", "danger")
+        return redirect(url_for('my_files'))
+    
+    # Read the encrypted file data from disk
+    with open(file_record.filepath, 'rb') as f:
+        encrypted_data = f.read()
+    
+    # Retrieve the stored encryption key and decode it
+    key = base64.b64decode(file_record.encryption_key)
+    # Extract the IV (first block) and the ciphertext
+    iv = encrypted_data[:AES.block_size]
+    ciphertext = encrypted_data[AES.block_size:]
+    
+    try:
+        # Decrypt the data
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        decrypted_data = unpad(cipher.decrypt(ciphertext), AES.block_size)
+    except Exception as e:
+        flash(f"Decryption failed: {str(e)}", "danger")
+        return redirect(url_for('my_files'))
+    
+    # Convert bytes to a string (assuming the file is text-based)
+    try:
+        content = decrypted_data.decode('utf-8')
+    except UnicodeDecodeError:
+        # If it's not a text file, let the user know
+        flash("This file doesn't appear to be a text file.", "warning")
+        return redirect(url_for('my_files'))
+    
+    return render_template('view_decrypted.html', content=content, filename=file_record.filename)
+
 # route to delete a file
 @app.route('/delete_file/<int:file_id>', methods=['POST'])
 @login_required

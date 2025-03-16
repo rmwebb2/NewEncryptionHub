@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container mt-4">
+    <h2>Viewing Decrypted: {{ filename }}</h2>
+    <pre>{{ content }}</pre>
+    <a href="{{ url_for('my_files') }}" class="btn btn-secondary">Back to My Files</a>
+  </div>
+{% endblock %}

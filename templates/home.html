@@ -1,10 +1,100 @@
-<!-- templates/home.html -->
 {% extends "base.html" %}
 {% block content %}
-<div class="text-center">
-  <h1>Welcome to Encryption Hub</h1>
-  <p>Please log in to access encryption and decryption tools.</p>
-  <a class="btn btn-primary" href="{{ url_for('login') }}">Login</a>
-  <a class="btn btn-secondary" href="{{ url_for('register') }}">Register</a>
+<div class="container text-center py-5">
+  <!-- Page Title / Logo -->
+  <h1 class="display-4 mb-4">CipherGuard <span class="fs-3">👍</span></h1>
+  <p class="lead mb-5">
+    Welcome to CipherGuard! <br />
+    Your all-in-one encryption and decryption solution—easy, fast, and secure.
+  </p>
+
+  <!-- Feature Icons / Descriptions -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-md-2 col-6 mb-4">
+      <div class="card border-0">
+        <div class="card-body">
+          <div class="mb-3">
+            <!-- Example icon (use Font Awesome or Bootstrap Icons) -->
+            <i class="bi bi-shield-lock fs-1"></i>
+          </div>
+          <h5 class="card-title fw-bold">Secure</h5>
+          <p class="card-text small">
+            We use modern, strong algorithms to keep your data safe.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6 mb-4">
+      <div class="card border-0">
+        <div class="card-body">
+          <div class="mb-3">
+            <i class="bi bi-lightning fs-1"></i>
+          </div>
+          <h5 class="card-title fw-bold">Fast &amp; Efficient</h5>
+          <p class="card-text small">
+            Encrypt and decrypt your data in seconds—no fuss.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6 mb-4">
+      <div class="card border-0">
+        <div class="card-body">
+          <div class="mb-3">
+            <i class="bi bi-people fs-1"></i>
+          </div>
+          <h5 class="card-title fw-bold">User-Friendly</h5>
+          <p class="card-text small">
+            Simple and intuitive interface suitable for beginners and experts.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6 mb-4">
+      <div class="card border-0">
+        <div class="card-body">
+          <div class="mb-3">
+            <i class="bi bi-eye-slash fs-1"></i>
+          </div>
+          <h5 class="card-title fw-bold">Privacy</h5>
+          <p class="card-text small">
+            Your data stays in your hands—only you have access.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6 mb-4">
+      <div class="card border-0">
+        <div class="card-body">
+          <div class="mb-3">
+            <i class="bi bi-check2-square fs-1"></i>
+          </div>
+          <h5 class="card-title fw-bold">Transparency</h5>
+          <p class="card-text small">
+            Built with transparency—CipherGuard is security you can rely on.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Box -->
+  <div class="card mx-auto" style="max-width: 400px;">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Login Here</h5>
+      <p class="small text-muted">Not a member yet? <a href="{{ url_for('register') }}">Create a free account!</a></p>
+      <form method="POST" action="{{ url_for('login') }}">
+        <div class="mb-3 text-start">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" required />
+        </div>
+        <div class="mb-3 text-start">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

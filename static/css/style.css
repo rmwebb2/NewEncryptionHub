@@ -1,0 +1,22 @@
+/* Example custom styles */
+body {
+    font-family: "Roboto", sans-serif; /* or any preferred font */
+  }
+  
+  h1.display-4 {
+    font-weight: 700;
+  }
+  
+  .card-title {
+    font-weight: 600;
+  }
+  
+  .card .form-label {
+    font-weight: 500;
+  }
+  
+  /* Tweak spacing around the icons */
+  .card-body .mb-3 {
+    margin-bottom: 1rem;
+  }
+  

@@ -1,0 +1,22 @@
+<!-- templates/my_files.html -->
+{% extends "base.html" %}
+{% block content %}
+  <h2>My Files</h2>
+  {% if files %}
+    <ul class="list-group">
+      {% for file in files %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ file.filename }}
+          <div>
+            <!-- Link to download encrypted file (if desired) -->
+            <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-sm btn-outline-primary">Download Encrypted</a>
+            <!-- Link to download decrypted file -->
+            <a href="{{ url_for('download_decrypted_file', file_id=file.id) }}" class="btn btn-sm btn-outline-success">Download Decrypted</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You haven't uploaded any files yet.</p>
+  {% endif %}
+{% endblock %}

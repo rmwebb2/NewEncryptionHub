@@ -1,16 +1,35 @@
 {% extends "base.html" %}
-
 {% block content %}
-  <h2>Decrypt Data</h2>
-  <form method="POST">
-    <div class="mb-3">
-      <label for="encrypted" class="form-label">Encrypted Text</label>
-      <textarea class="form-control" id="encrypted" name="encrypted" rows="3" required></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="key" class="form-label">Decryption Key</label>
-      <input type="text" class="form-control" id="key" name="key" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Decrypt</button>
-  </form>
+<h2>Decrypt Data</h2>
+<form method="POST">
+  <div class="mb-3">
+    <label for="encrypted" class="form-label">Encrypted Text (Base64)</label>
+    <textarea class="form-control" id="encrypted" name="encrypted" rows="3" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="method" class="form-label">Decryption Method</label>
+    <select class="form-select" id="method" name="method" required>
+      <option value="AES-256">AES-256</option>
+      <option value="RSA-2048">RSA-2048</option>
+    </select>
+  </div>
+
+  <!-- AES-specific fields -->
+  <div class="mb-3">
+    <label for="key" class="form-label">AES Key (Base64)</label>
+    <input type="text" class="form-control" id="key" name="key">
+  </div>
+  <div class="mb-3">
+    <label for="iv" class="form-label">AES IV (Base64)</label>
+    <input type="text" class="form-control" id="iv" name="iv">
+  </div>
+
+  <!-- RSA-specific field -->
+  <div class="mb-3">
+    <label for="private_key" class="form-label">RSA Private Key (PEM)</label>
+    <textarea class="form-control" id="private_key" name="private_key" rows="5"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Decrypt</button>
+</form>
 {% endblock %}

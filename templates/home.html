@@ -1,9 +1,10 @@
+<!-- templates/home.html -->
 {% extends "base.html" %}
 {% block content %}
-  <div class="text-center">
-    <h1>Welcome to CipherGuard</h1>
-    <p>Encrypt &amp; Decrypt Your Data Securely</p>
-    <a class="btn btn-primary" href="{{ url_for('encrypt') }}">Encrypt</a>
-    <a class="btn btn-secondary" href="{{ url_for('decrypt') }}">Decrypt</a>
-  </div>
+<div class="text-center">
+  <h1>Welcome to Encryption Hub</h1>
+  <p>Please log in to access encryption and decryption tools.</p>
+  <a class="btn btn-primary" href="{{ url_for('login') }}">Login</a>
+  <a class="btn btn-secondary" href="{{ url_for('register') }}">Register</a>
+</div>
 {% endblock %}

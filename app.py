@@ -139,6 +139,7 @@ def my_files():
     user_files = File.query.filter_by(user_id=current_user.id).all()
     return render_template('my_files.html', files=user_files)
 
+
 # download file route (for encrypted file)
 @app.route('/download/<int:file_id>')
 @login_required
@@ -199,6 +200,10 @@ def logout():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 # home route
 @app.route('/')

@@ -7,18 +7,43 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
           {{ file.filename }}
           <div>
-            <!-- Link to download encrypted file -->
+            <!-- Download Encrypted Button -->
             <a href="{{ url_for('download_file', file_id=file.id) }}" class="btn btn-sm btn-outline-primary">Download Encrypted</a>
-            <!-- Link to download decrypted file -->
+            <!-- Download Decrypted Button -->
             <a href="{{ url_for('download_decrypted_file', file_id=file.id) }}" class="btn btn-sm btn-outline-success">Download Decrypted</a>
-            <!-- New "View Decrypted" button for text files -->
+            <!-- View Decrypted Button -->
             <a href="{{ url_for('view_decrypted_file', file_id=file.id) }}" class="btn btn-sm btn-outline-info">View Decrypted</a>
-            <!-- Existing Delete button/form -->
-            <form action="{{ url_for('delete_file', file_id=file.id) }}" method="POST" style="display:inline-block;">
-              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-            </form>
+            <!-- Delete Button that triggers modal -->
+            <button 
+              type="button" 
+              class="btn btn-sm btn-outline-danger" 
+              data-bs-toggle="modal" 
+              data-bs-target="#confirmDeleteModal{{ file.id }}">
+              Delete
+            </button>
           </div>
         </li>
+
+        <!-- Modal for confirming deletion for this file -->
+        <div class="modal fade" id="confirmDeleteModal{{ file.id }}" tabindex="-1" aria-labelledby="confirmDeleteLabel{{ file.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteLabel{{ file.id }}">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete <strong>{{ file.filename }}</strong>?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{{ url_for('delete_file', file_id=file.id) }}" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       {% endfor %}
     </ul>
   {% else %}

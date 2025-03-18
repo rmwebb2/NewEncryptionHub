@@ -279,18 +279,18 @@ def encrypt():
     if request.method == 'POST':
         # get user inputs from the form
         plaintext = request.form.get('plaintext')
-        method = request.form.get('method')  # e.g., 'AES-256' or 'RSA-2048'
+        method = request.form.get('method')  # e.g. AES-256 or RSA-2048
 
         if method == 'AES-256':
             # AES encryption
             key = os.urandom(32)  # generate a random 256-bit key
-            cipher = AES.new(key, AES.MODE_CBC)  # create AES cipher in CBC mode with random IV
-            ct_bytes = cipher.encrypt(pad(plaintext.encode('utf-8'), AES.block_size))  # encrypt with padding
-            iv_b64 = base64.b64encode(cipher.iv).decode('utf-8')
-            ct_b64 = base64.b64encode(ct_bytes).decode('utf-8')
-            key_b64 = base64.b64encode(key).decode('utf-8')
+            cipher = AES.new(key, AES.MODE_CBC)  # create AES cipher in cipher block chaining mode
+            ct_bytes = cipher.encrypt(pad(plaintext.encode('utf-8'), AES.block_size))  # encrypt with padding using cipher
+            iv_b64 = base64.b64encode(cipher.iv).decode('utf-8') # encodes IV to base64 string for storage
+            ct_b64 = base64.b64encode(ct_bytes).decode('utf-8') # encodes ciphertext the same way as ^ above
+            key_b64 = base64.b64encode(key).decode('utf-8') # encodes key for later use (for decryption)
 
-            # display encryption details (for demo)
+            # encryption details (for demo)
             result = (
                 f"**AES-256 Encryption**\n\n"
                 f"Key (Base64): {key_b64}\n"
@@ -301,14 +301,15 @@ def encrypt():
 
         elif method == 'RSA-2048':
             # RSA Encryption
-            key_pair = RSA.generate(2048)
-            public_key = key_pair.publickey()
-            cipher = PKCS1_OAEP.new(public_key)
-            ciphertext = cipher.encrypt(plaintext.encode('utf-8'))
-            ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
-            private_key_pem = key_pair.export_key().decode('utf-8')
-            public_key_pem = public_key.export_key().decode('utf-8')
+            key_pair = RSA.generate(2048) # generates 2048-bit RSA key pair (both public and private)
+            public_key = key_pair.publickey() # extracts public key from generated key pair
+            cipher = PKCS1_OAEP.new(public_key) # creates a cipher object for RSA encryption
+            ciphertext = cipher.encrypt(plaintext.encode('utf-8')) # first, encodes plaintext to UTF-8
+            ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8') # encodes UTF-8 to base64 string
+            private_key_pem = key_pair.export_key().decode('utf-8') # exports private key in PEM format
+            public_key_pem = public_key.export_key().decode('utf-8') # exports public key in PEM format (for demo/info purposes)
 
+            # encryption details (for demo)
             result = (
                 f"**RSA-2048 Encryption**\n\n"
                 f"Public Key (PEM):\n{public_key_pem}\n\n"
@@ -323,51 +324,68 @@ def encrypt():
 
     return render_template('encrypt.html')
 
-# decryption route
+# decryption route: handles both AES and RSA decryption based on user selection
 @app.route('/decrypt', methods=['GET', 'POST'])
 def decrypt():
     if request.method == 'POST':
-        method = request.form.get('method')  # 'AES-256' or 'RSA-2048'
-        encrypted_data = request.form.get('encrypted')  # ciphertext in Base64
+        # retrieves the selected decryption method (either AES-256 or RSA-2048)
+        method = request.form.get('method')
+        # retrieves the ciphertext (should be base-64 encoding)
+        encrypted_data = request.form.get('encrypted')
 
         if method == 'AES-256':
+            # for AES decryption, retrieve the key and IV from the form
             key_b64 = request.form.get('key')
             iv_b64 = request.form.get('iv')
+            # makes sure all required fields are provided (key, IV, and ciphertext)
+            # redirects and gives error message if incorrect/missing fields
             if not key_b64 or not iv_b64 or not encrypted_data:
                 flash("Missing AES key/IV or ciphertext.", "danger")
                 return redirect(url_for('decrypt'))
 
             try:
+                # decodes the key, IV, and ciphertext from Base64 to raw bytes
                 key = base64.b64decode(key_b64)
                 iv = base64.b64decode(iv_b64)
                 ciphertext = base64.b64decode(encrypted_data)
                 cipher = AES.new(key, AES.MODE_CBC, iv)
+                # decrypts the ciphertext and remove the padding to get the original plaintext bytes
                 pt = unpad(cipher.decrypt(ciphertext), AES.block_size)
+                # decodes the plaintext bytes to a UTF-8 string
                 plaintext = pt.decode('utf-8')
             except Exception as e:
+                # if decryption fails, flash an error message and redirect back to the decrypt page
                 flash(f"AES Decryption failed: {str(e)}", "danger")
                 return redirect(url_for('decrypt'))
 
+            # renders the results template with the decrypted plaintext
             return render_template('results.html', result=plaintext, operation="Decryption")
 
         elif method == 'RSA-2048':
+            # for RSA decryption, retrieve the private key in PEM format from the form
             private_key_pem = request.form.get('private_key')
+            # makes sure both the private key and ciphertext are provided
             if not private_key_pem or not encrypted_data:
                 flash("Missing RSA private key or ciphertext.", "danger")
                 return redirect(url_for('decrypt'))
 
             try:
+                # imports the private key from its PEM string format
                 private_key = RSA.import_key(private_key_pem)
+                # create a new cipher with the private key for decryption aned decodes cipher text to raw bytes
                 cipher = PKCS1_OAEP.new(private_key)
                 ciphertext = base64.b64decode(encrypted_data)
+                # decrypts the ciphertext using RSA and decode it to a UTF-8 string
                 plaintext = cipher.decrypt(ciphertext).decode('utf-8')
             except Exception as e:
+                # provides error message and redirect if decryption fails
                 flash(f"RSA Decryption failed: {str(e)}", "danger")
                 return redirect(url_for('decrypt'))
-
+            
             return render_template('results.html', result=plaintext, operation="Decryption")
 
         else:
+            # provides error message/redirects if invalid decryption method selected
             flash("Invalid decryption method selected.", "danger")
             return redirect(url_for('decrypt'))
 

@@ -321,20 +321,18 @@ def encrypt():
         
         elif method == 'ChaCha20':
             # ChaCha20 Encryption:
-            # 1. Generate a random 256-bit key (32 bytes).
+            # generate random 256-bit key and 64-bit nonce
             key = os.urandom(32)
-            # 2. Generate a random nonce (8 bytes for ChaCha20).
             nonce = os.urandom(8)
-            # 3. Create a ChaCha20 cipher object with the key and nonce.
+            # create ChaCha cipher object w/ key and nonce
             cipher = ChaCha20.new(key=key, nonce=nonce)
-            # 4. Encrypt the plaintext (encoded to UTF-8 bytes).
+            # encrypt plaintext
             ciphertext = cipher.encrypt(plaintext.encode('utf-8'))
-            # 5. Base64-encode the key, nonce, and ciphertext so they can be easily displayed or stored.
             key_b64 = base64.b64encode(key).decode('utf-8')
             nonce_b64 = base64.b64encode(nonce).decode('utf-8')
             ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
 
-            # 6. Build the result string for demonstration.
+            # display results
             result = (
                 f"**ChaCha20 Encryption**\n\n"
                 f"Key (Base64): {key_b64}\n"

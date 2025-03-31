@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, cur
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Cipher import AES, PKCS1_OAEP, ChaCha20 
 from Crypto.Util.Padding import pad, unpad
 from Crypto.PublicKey import RSA
 import base64, os
@@ -187,6 +187,7 @@ def download_decrypted_file(file_id):
                  download_name=file_record.filename,
                  as_attachment=True)
 
+# route to view decrypted text file in browser
 @app.route('/view_decrypted/<int:file_id>')
 @login_required
 def view_decrypted_file(file_id):
@@ -317,7 +318,30 @@ def encrypt():
                 f"Private Key (PEM):\n{private_key_pem}"
             )
             return render_template('results.html', result=result, operation="Encryption")
+        
+        elif method == 'ChaCha20':
+            # ChaCha20 Encryption:
+            # 1. Generate a random 256-bit key (32 bytes).
+            key = os.urandom(32)
+            # 2. Generate a random nonce (8 bytes for ChaCha20).
+            nonce = os.urandom(8)
+            # 3. Create a ChaCha20 cipher object with the key and nonce.
+            cipher = ChaCha20.new(key=key, nonce=nonce)
+            # 4. Encrypt the plaintext (encoded to UTF-8 bytes).
+            ciphertext = cipher.encrypt(plaintext.encode('utf-8'))
+            # 5. Base64-encode the key, nonce, and ciphertext so they can be easily displayed or stored.
+            key_b64 = base64.b64encode(key).decode('utf-8')
+            nonce_b64 = base64.b64encode(nonce).decode('utf-8')
+            ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
 
+            # 6. Build the result string for demonstration.
+            result = (
+                f"**ChaCha20 Encryption**\n\n"
+                f"Key (Base64): {key_b64}\n"
+                f"Nonce (Base64): {nonce_b64}\n"
+                f"Ciphertext (Base64): {ciphertext_b64}"
+            )
+            return render_template('results.html', result=result, operation="Encryption")
         else:
             flash("Invalid encryption method selected.", "danger")
             return redirect(url_for('encrypt'))
@@ -380,6 +404,28 @@ def decrypt():
             except Exception as e:
                 # provides error message and redirect if decryption fails
                 flash(f"RSA Decryption failed: {str(e)}", "danger")
+                return redirect(url_for('decrypt'))
+            
+            return render_template('results.html', result=plaintext, operation="Decryption")
+        
+        elif method == 'ChaCha20':
+            # For ChaCha20, expect the key and nonce from the form, along with the ciphertext.
+            key_b64 = request.form.get('chacha_key')
+            nonce_b64 = request.form.get('nonce')
+            if not key_b64 or not nonce_b64 or not encrypted_data:
+                flash("Missing ChaCha20 key, nonce, or ciphertext.", "danger")
+                return redirect(url_for('decrypt'))
+            try:
+                # Decode key, nonce, and ciphertext from Base64.
+                key = base64.b64decode(key_b64)
+                nonce = base64.b64decode(nonce_b64)
+                ciphertext = base64.b64decode(encrypted_data)
+                # Create the ChaCha20 cipher with the provided key and nonce.
+                cipher = ChaCha20.new(key=key, nonce=nonce)
+                # Decrypt the ciphertext.
+                plaintext = cipher.decrypt(ciphertext).decode('utf-8')
+            except Exception as e:
+                flash(f"ChaCha20 Decryption failed: {str(e)}", "danger")
                 return redirect(url_for('decrypt'))
             
             return render_template('results.html', result=plaintext, operation="Decryption")

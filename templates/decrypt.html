@@ -2,34 +2,83 @@
 {% block content %}
 <h2>Decrypt Data</h2>
 <form method="POST">
+  <!-- Select Decryption Method -->
   <div class="mb-3">
-    <label for="encrypted" class="form-label">Encrypted Text (Base64)</label>
-    <textarea class="form-control" id="encrypted" name="encrypted" rows="3" required></textarea>
-  </div>
-  <div class="mb-3">
-    <label for="method" class="form-label">Decryption Method</label>
+    <label for="method" class="form-label">Select Decryption Method</label>
     <select class="form-select" id="method" name="method" required>
       <option value="AES-256">AES-256</option>
       <option value="RSA-2048">RSA-2048</option>
+      <option value="ChaCha20">ChaCha20</option>
     </select>
   </div>
 
-  <!-- AES-specific fields -->
-  <div class="mb-3">
-    <label for="key" class="form-label">AES Key (Base64)</label>
-    <input type="text" class="form-control" id="key" name="key">
-  </div>
-  <div class="mb-3">
-    <label for="iv" class="form-label">AES IV (Base64)</label>
-    <input type="text" class="form-control" id="iv" name="iv">
+  <!-- Common Field for Encrypted Text -->
+  <div class="mb-3" id="common-fields">
+    <label for="encrypted" class="form-label">Encrypted Text (Base64)</label>
+    <textarea class="form-control" id="encrypted" name="encrypted" rows="3" required></textarea>
   </div>
 
-  <!-- RSA-specific field -->
-  <div class="mb-3">
-    <label for="private_key" class="form-label">RSA Private Key (PEM)</label>
-    <textarea class="form-control" id="private_key" name="private_key" rows="5"></textarea>
+  <!-- AES-Specific Fields -->
+  <div id="aes-fields" style="display: none;">
+    <div class="mb-3">
+      <label for="key" class="form-label">AES Key (Base64)</label>
+      <input type="text" class="form-control" id="key" name="key">
+    </div>
+    <div class="mb-3">
+      <label for="iv" class="form-label">AES IV (Base64)</label>
+      <input type="text" class="form-control" id="iv" name="iv">
+    </div>
+  </div>
+
+  <!-- RSA-Specific Field -->
+  <div id="rsa-fields" style="display: none;">
+    <div class="mb-3">
+      <label for="private_key" class="form-label">RSA Private Key (PEM)</label>
+      <textarea class="form-control" id="private_key" name="private_key" rows="5"></textarea>
+    </div>
+  </div>
+
+  <!-- ChaCha20-Specific Fields -->
+  <div id="chacha-fields" style="display: none;">
+    <div class="mb-3">
+      <label for="key_chacha" class="form-label">ChaCha20 Key (Base64)</label>
+      <input type="text" class="form-control" id="key_chacha" name="chacha_key">
+    </div>
+    <div class="mb-3">
+      <label for="nonce" class="form-label">ChaCha20 Nonce (Base64)</label>
+      <input type="text" class="form-control" id="nonce" name="nonce">
+    </div>
   </div>
 
   <button type="submit" class="btn btn-primary">Decrypt</button>
 </form>
+
+<!-- JavaScript to show/hide algorithm-specific fields -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const methodSelect = document.getElementById('method');
+
+    function updateFields() {
+        const selected = methodSelect.value;
+        // Hide all specific sections
+        document.getElementById('aes-fields').style.display = 'none';
+        document.getElementById('rsa-fields').style.display = 'none';
+        document.getElementById('chacha-fields').style.display = 'none';
+
+        // Show the appropriate fields based on selection
+        if (selected === 'AES-256') {
+            document.getElementById('aes-fields').style.display = 'block';
+        } else if (selected === 'RSA-2048') {
+            document.getElementById('rsa-fields').style.display = 'block';
+        } else if (selected === 'ChaCha20') {
+            document.getElementById('chacha-fields').style.display = 'block';
+        }
+    }
+
+    // Update fields when the method changes
+    methodSelect.addEventListener('change', updateFields);
+    // Initialize fields on page load
+    updateFields();
+});
+</script>
 {% endblock %}

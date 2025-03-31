@@ -407,20 +407,19 @@ def decrypt():
             return render_template('results.html', result=plaintext, operation="Decryption")
         
         elif method == 'ChaCha20':
-            # For ChaCha20, expect the key and nonce from the form, along with the ciphertext.
+            # for ChaCha20 decryption, retrieve the key and nonce from the form
             key_b64 = request.form.get('chacha_key')
             nonce_b64 = request.form.get('nonce')
             if not key_b64 or not nonce_b64 or not encrypted_data:
                 flash("Missing ChaCha20 key, nonce, or ciphertext.", "danger")
                 return redirect(url_for('decrypt'))
             try:
-                # Decode key, nonce, and ciphertext from Base64.
+                # decodes the key, nonce, and ciphertext from Base64 to raw bytes
                 key = base64.b64decode(key_b64)
                 nonce = base64.b64decode(nonce_b64)
                 ciphertext = base64.b64decode(encrypted_data)
-                # Create the ChaCha20 cipher with the provided key and nonce.
                 cipher = ChaCha20.new(key=key, nonce=nonce)
-                # Decrypt the ciphertext.
+                # decrypt the ciphertext and decode it to a UTF-8 string
                 plaintext = cipher.decrypt(ciphertext).decode('utf-8')
             except Exception as e:
                 flash(f"ChaCha20 Decryption failed: {str(e)}", "danger")

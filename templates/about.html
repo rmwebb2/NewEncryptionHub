@@ -4,7 +4,8 @@
     <h1>About CipherGuard</h1>
     <p>
       CipherGuard is a web application that allows you to encrypt and decrypt data securely
-      using both symmetric (AES) and asymmetric (RSA) encryption algorithms.
+      using industry-standard algorithms such as AES-256, RSA-2048, and ChaCha20. It’s designed
+      for educational purposes as well as general usage, ensuring your sensitive information remains private.
     </p>
 
     <hr>
@@ -12,7 +13,7 @@
     <h2>How AES Works</h2>
     <p>
       <strong>AES (Advanced Encryption Standard)</strong> is a symmetric block cipher.
-      This means the same key is used to encrypt and decrypt data. 
+      This means the same key is used to encrypt and decrypt data.
       Key points:
     </p>
     <ul>
@@ -39,10 +40,24 @@
 
     <hr>
 
-    <h2>Why We Use Both AES and RSA</h2>
+    <h2>How ChaCha20 Works</h2>
     <p>
-      AES is very efficient for bulk data encryption, while RSA is useful for securely exchanging keys 
-      or signing data. Together, they provide strong security for various scenarios.
+      <strong>ChaCha20</strong> is a modern stream cipher designed as an improvement over the Salsa20 family.
+      It encrypts data byte-by-byte using a pseudo-random keystream generated from a 256-bit key and an 8-byte nonce.
+      Key points:
+    </p>
+    <ul>
+      <li><strong>Stream Cipher:</strong> Unlike block ciphers, ChaCha20 encrypts data continuously, which can be more efficient for certain types of data.</li>
+      <li><strong>High Performance:</strong> Optimized for high-speed encryption on modern processors, making it well-suited for mobile and web applications.</li>
+      <li><strong>Security:</strong> ChaCha20 is considered secure and is used in protocols like TLS as a robust alternative to AES.</li>
+      <li><strong>Nonce Usage:</strong> Requires a unique nonce for each encryption operation to ensure the keystream is never reused.</li>
+    </ul>
+
+    <hr>
+
+    <h2>Why We Use Multiple Algorithms</h2>
+    <p>
+      Each encryption algorithm offers its own strengths: AES is highly efficient for large volumes of data, RSA enables secure key exchange and digital signatures, and ChaCha20 offers a fast, secure stream cipher option that works well on various devices. By supporting multiple algorithms, CipherGuard provides flexibility and robust security for a range of encryption needs.
     </p>
     
     <p>We hope you enjoy using CipherGuard!</p>

@@ -9,8 +9,9 @@ User Authentication:
 - Secure registration, login, and logout using Flask-Login and Flask-Bcrypt.
 
 Encryption/Decryption:
-- AES-256: Encrypt and decrypt text data using symmetric encryption (AES in CBC mode).
-- RSA-2048: Encrypt and decrypt text data using asymmetric encryption with a public/private key pair.
+- **AES-256:** Encrypt and decrypt text data using symmetric encryption (AES in CBC mode).
+- **RSA-2048:** Encrypt and decrypt text data using asymmetric encryption with a public/private key pair.
+- **ChaCha20:** Encrypt and decrypt text data using a modern stream cipher, offering a fast and secure alternative for high-speed encryption.
 
 File Storage:
 - Upload files that are automatically encrypted using AES-256 before storage.

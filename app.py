@@ -13,7 +13,7 @@ from flask_migrate import Migrate
 # create Flask app and configure it with necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_dev_key')  ## change this in production/sprint 2
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = ('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)

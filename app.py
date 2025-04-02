@@ -8,15 +8,17 @@ from Crypto.PublicKey import RSA
 import base64, os
 from werkzeug.utils import secure_filename
 from io import BytesIO
+from flask_migrate import Migrate
 
 # create Flask app and configure it with necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key_here'  ## change this in production/sprint 2
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/site.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_dev_key')  ## change this in production/sprint 2
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # redirects if route requires login
+migrate = Migrate(app, db)
 
 # create a User model for SQLite and SQLAlchemy
 class User(db.Model, UserMixin):
@@ -25,7 +27,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'docx'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 # function to ensure the uploaded file is of the correct type (listed above^)
 def allowed_file(filename):

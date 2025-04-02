@@ -12,7 +12,7 @@ from io import BytesIO
 # create Flask app and configure it with necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'  ## change this in production/sprint 2
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/site.db'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)

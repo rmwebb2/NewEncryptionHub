@@ -1,0 +1,5 @@
+# ignore all user uploads
+uploads/
+
+# ignore SQLite database
+*.db

@@ -9,11 +9,14 @@ import base64, os
 from werkzeug.utils import secure_filename
 from io import BytesIO
 from flask_migrate import Migrate
+from flask import make_response, send_file, Response
+from mimetypes import guess_type
+import base64
 
 # create Flask app and configure it with necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_dev_key')  ## change this in production/sprint 2
-app.config['SQLALCHEMY_DATABASE_URI'] = ('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -27,7 +30,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'docx'}
 
 # function to ensure the uploaded file is of the correct type (listed above^)
 def allowed_file(filename):
@@ -194,38 +197,45 @@ def download_decrypted_file(file_id):
 @login_required
 def view_decrypted_file(file_id):
     file_record = File.query.get_or_404(file_id)
-    # ensure the file belongs to the current user
+
+    # Ensure current user is authorized
     if file_record.user_id != current_user.id:
         flash("You do not have permission to view this file.", "danger")
         return redirect(url_for('my_files'))
-    
-    # read the encrypted file data from disk
+
+    # Read the encrypted file data from disk
     with open(file_record.filepath, 'rb') as f:
         encrypted_data = f.read()
-    
-    # retrieve the stored encryption key and decode it
+
+    # Decrypt
     key = base64.b64decode(file_record.encryption_key)
-    # extract the IV (first block) and the ciphertext
     iv = encrypted_data[:AES.block_size]
     ciphertext = encrypted_data[AES.block_size:]
-    
+
     try:
-        # decrypt the data
         cipher = AES.new(key, AES.MODE_CBC, iv)
         decrypted_data = unpad(cipher.decrypt(ciphertext), AES.block_size)
     except Exception as e:
         flash(f"Decryption failed: {str(e)}", "danger")
         return redirect(url_for('my_files'))
-    
-    # convert bytes to a string (assuming the file is text-based)
-    try:
-        content = decrypted_data.decode('utf-8')
-    except UnicodeDecodeError:
-        # if it's not a text file, let the user know
-        flash("This file doesn't appear to be a text file.", "warning")
-        return redirect(url_for('my_files'))
-    
-    return render_template('view_decrypted.html', content=content, filename=file_record.filename)
+
+    # Guess MIME type from extension
+    # e.g., "application/pdf", "image/png", etc.
+    mime_type, _ = guess_type(file_record.filename)
+    if not mime_type:
+        # Fallback if the type can't be guessed
+        mime_type = "application/octet-stream"
+
+    # Return as an inline response to let the browser handle it
+    response = make_response(decrypted_data)
+    response.headers.set('Content-Type', mime_type)
+    response.headers.set(
+        'Content-Disposition',
+        f'inline; filename="{file_record.filename}"'
+    )
+
+    return response
+
 
 # route to delete a file
 @app.route('/delete_file/<int:file_id>', methods=['POST'])

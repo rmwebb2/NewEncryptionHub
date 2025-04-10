@@ -12,11 +12,14 @@ from flask_migrate import Migrate
 from flask import make_response, send_file, Response
 from mimetypes import guess_type
 import base64
+from google.cloud.vision_v1 import ImageAnnotatorClient, Likelihood
+from google.cloud import vision
 
 # create Flask app and configure it with necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_dev_key')  ## change this in production/sprint 2
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "default/path/to/service-account.json")
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -35,6 +38,20 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'docx'}
 # function to ensure the uploaded file is of the correct type (listed above^)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def is_safe_image(image_content):
+ 
+    # uses Google Cloud Vision SafeSearch detection to determine if an image contains
+    # violent or explicit content. Returns False if such content is likely, otherwise True.
+
+    client = ImageAnnotatorClient()
+    image = vision.Image(content=image_content)
+    response = client.safe_search_detection(image=image)
+    safe = response.safe_search_annotation
+
+    if safe.adult >= Likelihood.LIKELY or safe.violence >= Likelihood.LIKELY:
+        return False
+    return True
 
 # create a File model for SQLite and SQLAlchemy
 class File(db.Model):
@@ -108,6 +125,17 @@ def upload():
             
             # read the file's contents into memory
             file_data = file.read()
+            
+            # SafeSearch detection integration using Google Cloud Vision
+            file_ext = filename.rsplit('.', 1)[1].lower()
+            if file_ext in {'png', 'jpg', 'jpeg', 'gif'}:
+                if not is_safe_image(file_data):
+                    flash("The image appears to contain violent or explicit content. Please upload another file.", "danger")
+                    return redirect(request.url)
+                # Reset file pointer after safe search check
+                file.seek(0)
+                file_data = file.read()
+            
             # generate a random 256-bit AES key
             key = os.urandom(32)
             # create an AES cipher in CBC mode (this generates a random IV)

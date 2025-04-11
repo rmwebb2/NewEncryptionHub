@@ -15,6 +15,7 @@ import base64
 from google.cloud.vision_v1 import ImageAnnotatorClient, Likelihood
 from google.cloud import vision
 
+
 # create Flask app and configure it with necessary extensions (bcrypt, login manager, etc.)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_dev_key')  ## change this in production/sprint 2

@@ -20,7 +20,7 @@ from google.cloud import vision
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default_dev_key')  ## change this in production/sprint 2
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db')  # SQLite database URI
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "default/path/to/service-account.json")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "default/path/to/service-account.json") # for google cloud vision API
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
@@ -304,6 +304,7 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
+# about route
 @app.route('/about')
 def about():
     return render_template('about.html')
